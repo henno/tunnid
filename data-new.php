@@ -38,7 +38,7 @@ if (isset($_GET['date_from']) && isset($_GET['date_to'])) {
 }
 
 // GET DATA
-$sql = "SELECT subject, lessondate, dayname, groupname, starttime, endtime, theory, room FROM tunnid ".$period." ORDER BY lessondate ASC, starttime ASC;";
+$sql = "SELECT id, subject, lessondate, dayname, groupname, starttime, endtime, theory, room, processed FROM tunnid ".$period." ORDER BY lessondate ASC, starttime ASC;";
 
 $data = $conn->query($sql);
 // echo $sql;
@@ -61,7 +61,7 @@ while($row = $data->fetch_assoc()){
     // DATEROW
     if ($currentDay > $lastDay) {
     	$lastDay = $currentDay;
-    	$table .= '<tr class="info daterow '.$rowcolor.'"><td><input type="checkbox" class="datecheck" /></td><td colspan="3">'.$row['dayname'].' '.date('d.m.Y', strtotime($lastDay)).'</td><td>'.date("H:i", strtotime($row["starttime"])).'</td><td class="date-end"></td><td></td></tr>';
+    	$table .= '<tr class="info daterow '.$rowcolor.'" ><td><input type="checkbox" class="datecheck" /></td><td colspan="3">'.$row['dayname'].' '.date('d.m.Y', strtotime($lastDay)).'</td><td>'.date("H:i", strtotime($row["starttime"])).'</td><td class="date-end"></td><td></td></tr>';
     }
 
     $cD = date('Y-m-d', strtotime($row['lessondate']));
@@ -77,7 +77,8 @@ while($row = $data->fetch_assoc()){
     }
     $theory = ($row['theory'] === 1)? 'subject-theory' : 'subject-computer';
 	$lessonCount++;
-	$table .= '<tr class="lessonrow '.$future.' '.$theory.' '.$rowcolor.'">'.
+	$processed = ($row['processed'] === '1')? 'processed' : '';
+	$table .= '<tr class="lessonrow '.$future.' '.$theory.' '.$rowcolor.' '.$processed.'" data-id="'.$row['id'].'">'.
 	'<td><input type="checkbox" class="rowcheck" /></td>'.
 	'<td class="count">'.$lessonCount.'</td>'.
 	'<td>'.$row["subject"].'</td>'.

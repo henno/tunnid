@@ -41,13 +41,42 @@ $(document).ready(function(){
 
 
 	$('.processed-apply').click(function(){
-		$('.rowcheck:checked').closest('tr').addClass('processed');
+		var tp = {};
+		$('.rowcheck:checked').closest('tr').each(function(i){
+			$(this).addClass('processed');
+			tp[i] = $(this).data('id');
+		});
+		$.ajax({
+			type: 'POST',
+			url: 'process.php?add',
+			beforeSend: function() {
+				$('.loader').show();
+			},
+			data: tp,
+		}).done(function(){
+			$('.loader').hide();
+		});
 		$('input[type="checkbox"]').prop('checked', false);
 		processBtnToggle();
 		return false;
 	});
+
 	$('.processed-remove').click(function(){
-		$('.rowcheck:checked').closest('tr').removeClass('processed');
+		var tp = {};
+		$('.rowcheck:checked').closest('tr').each(function(i){
+			$(this).removeClass('processed');
+			tp[i] = $(this).data('id');
+		});
+		$.ajax({
+			type: 'POST',
+			url: 'process.php?remove',
+			beforeSend: function() {
+				$('.loader').show();
+			},
+			data: tp,
+		}).done(function(){
+			$('.loader').hide();
+		});
 		$('input[type="checkbox"]').prop('checked', false);
 		processBtnToggle();
 		return false;
