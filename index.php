@@ -115,6 +115,7 @@ $currentPeriod = 0;
 					<li><a href="#" class="period" data-start="<?php echo $perioodid[$currentPeriod]['start']; ?>" data-end="<?php echo $perioodid[$currentPeriod]['end']; ?>" >Jooksev periood</a></li>
 					<li><a href="#" class="period" data-start="<?php echo $perioodid[$currentPeriod-1]['start']; ?>" data-end="<?php echo $perioodid[$currentPeriod]['end']; ?>" >Eelmine ja jooksev periood</a></li>
 					<li><a href="#" class="period" data-start="<?php echo $yearStart; ?>" data-end="<?php echo $perioodid[7]['end']; ?>" >Jooksev õppeaasta</a></li>
+					<li><a href="subjects.php">Ained &rarr;</a></li>
 				</ul>
 				</div>
 			</div>

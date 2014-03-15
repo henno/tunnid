@@ -43,7 +43,7 @@ tr.daterow>td {
 .table>tbody>tr.current-lesson>td {
 	background-color: #F9F7B1;
 }
-.table>tbody>tr.lessonrow:hover>td {
+.table>tbody>tr.lessonrow:hover>td, .table-subjects>tbody>tr:hover>td {
 	background-color: #FFF9EF;
 }
 .table {
