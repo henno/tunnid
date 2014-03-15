@@ -246,6 +246,7 @@ $(document).ready(function(){
 		$.ajax({
 			url: 'update-database.php',
 			beforeSend: function() {
+				svUpdate();
 				updating = true;
 				$('.loader').show();
 			},
@@ -327,4 +328,21 @@ $(document).ready(function(){
 		else if (!isChecked && $('.process-buttons').is(':visible'))
 			$('.process-buttons').hide();
 	}
+
+	
+	function svUpdate(){
+		$.ajax({
+			type: 'POST',
+			url: 'sv-update.php',
+			beforeSend: function() {
+				updating = true;
+				$('.loader').show();
+			},
+		}).done(function(){
+			updating = false;
+			$('.loader').hide();
+			updateData();
+		});
+	}
+	
 });

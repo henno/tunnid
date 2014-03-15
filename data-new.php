@@ -38,7 +38,7 @@ if (isset($_GET['date_from']) && isset($_GET['date_to'])) {
 }
 
 // GET DATA
-$sql = "SELECT id, subject, lessondate, dayname, groupname, starttime, endtime, theory, room, processed FROM tunnid ".$period." ORDER BY lessondate ASC, starttime ASC;";
+$sql = "SELECT id, subject, lessondate, dayname, groupname, starttime, endtime, theory, room, processed, subject_id, lesson_id FROM tunnid ".$period." ORDER BY lessondate ASC, starttime ASC;";
 
 $data = $conn->query($sql);
 // echo $sql;
@@ -80,8 +80,19 @@ while($row = $data->fetch_assoc()){
 	$processed = ($row['processed'] === '1')? 'processed' : '';
 	$table .= '<tr class="lessonrow '.$future.' '.$theory.' '.$rowcolor.' '.$processed.'" data-id="'.$row['id'].'">'.
 	'<td><input type="checkbox" class="rowcheck" /></td>'.
-	'<td class="count">'.$lessonCount.'</td>'.
-	'<td>'.$row["subject"].'</td>'.
+	'<td class="count">'.$lessonCount.'</td>';
+
+	if ($row['subject_id']) {
+		$diarylink = 'https://siseveeb.ee/tkhk/kutseope/oppetoo/paevik/taitmine?paevik='.$row['subject_id'];
+		if ($row['lesson_id']) 
+			$diarylink .= '&tund='.$row['lesson_id'];
+
+		$lessonfield = '<a href="'.$diarylink.'" target="_new">'.$row["subject"].'</a>';
+	} else {
+		$lessonfield = $row["subject"];
+	}
+
+	$table .= '<td>'.$lessonfield.'</td>'.
 	'<td>'.$row["groupname"].'</td>'.
 	'<td>'.date("H:i", strtotime($row["starttime"])).'</td>'.
 	'<td class="end-time">'.date("H:i", strtotime($row["endtime"])).'</td>'.
