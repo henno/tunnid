@@ -147,15 +147,20 @@ $currentPeriod = 0;
 		</div>
 
 
-<div class="modal fade bs-example-modal-sm" data-backdrop="static" data-keyboard="false" id="alert" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+<div class="modal fade bs-example-modal-sm" id="alert" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-body">
-        <p>Andmebaasi uuendamine</p>
-        <div class="progress progress-striped active">
-		  <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-		  </div>
+      <form id="passform" action="" method="post">
+		<div class="row">
+			<div class="col-md-9">
+	      		<input type="password" id="update-password" class="form-control">
+			</div>
+			<div class="col-md-3">
+		      	<button id="submit-password" required pattern=".{6,}" class="btn btn-success btn-block">Ok!</button>
+			</div>
 		</div>
+      </form>
       </div>
     </div>
   </div>

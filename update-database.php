@@ -44,14 +44,14 @@ foreach ($timetable as $week) {
 }
 
 $tobase = substr($tobase, 0, -1);
-$tobase .= ";";
+$tobase .= "ON DUPLICATE KEY UPDATE theory=theory;";
 
  
-if($conn->query("TRUNCATE tunnid") === false) {
+/*if($conn->query("TRUNCATE tunnid") === false) {
   trigger_error('Wrong SQL: ' . $sql . ' Error: ' . $conn->error, E_USER_ERROR);
 } else {
   $last_inserted_id = $conn->insert_id;
-}
+}*/
 
 if($conn->query($tobase) === false) {
   trigger_error('Wrong SQL: ' . $sql . ' Error: ' . $conn->error, E_USER_ERROR);
