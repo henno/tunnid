@@ -1,106 +1,28 @@
 <?php 
 include 'config.php';
-include('simple_html_dom.php');
 
-$loginUrl = 'https://siseveeb.ee/tkhk/ajax_send';
-getUrl($loginUrl, 'post', $loginFields);
+include 'config.php';
 
-$table_subjects = getUrl('https://siseveeb.ee/tkhk/kutseope/oppetoo/paevik/ajax_cmd?cmd=k_daybook_opetaja_list_type', 'post', array('list' => 2013, 'filter_table' => true));
+$conn = new mysqli($server, $user, $pass, $database);
+$conn->set_charset("utf8");
+$dbs = $conn->query("SELECT * FROM daybooks ORDER BY groupname ASC");
+$daybooks = $dbs->fetch_all(MYSQLI_ASSOC);
 
-$all_subjects = array();
-$subjects = str_get_html($table_subjects);
-$gp = 0;
-$GLOBALS["grade_period"] = $gp;
-foreach ($subjects->find('tr') as $tr) {
-
-	$current_subject = array();
-
-	foreach ($tr->find('tbody>tr>td') as $i => $td) {
-		$a = $td->find('a', 0);
-		if ($a) {
-			$subject_string = explode(' (', $a->plaintext);
-			$subject_name = $subject_string[0];
-
-			$subject_id_string = explode('paevik=', $a->href);
-			$subject_id = $subject_id_string[1];
+$perioodid = array(
+array('start'=> '02.09.2013', 'end'=> '06.10.2013'),
+array('start'=> '07.10.2013', 'end'=> '10.11.2013'),
+array('start'=> '11.11.2013', 'end'=> '15.12.2013'),
+array('start'=> '16.12.2013', 'end'=> '02.02.2014'),
+array('start'=> '03.02.2014', 'end'=> '09.03.2014'),
+array('start'=> '10.03.2014', 'end'=> '13.04.2014'),
+array('start'=> '14.04.2014', 'end'=> '18.05.2014'),
+array('start'=> '19.05.2014', 'end'=> '31.08.2014'),
+);
 
 
-			if ($i === 0) {
-				$current_subject['id'] = $subject_id;
-				$current_subject['group'] = $a->innertext;
-			}
-
-			if ($i === 1) {
-				$current_subject['name'] = $subject_name;
-				$current_subject['href'] = $a->href;
-				$current_subject['fullname'] = $a->plaintext;
-
-				$lessons_html = str_get_html(getUrl($a->href));
-
-				$entries = $lessons_html->find('div[id=daybook_entries]', 0);
-				$studentrows = $entries->find('.active_student');
-				$studentCount = count($studentrows);
-				$periods = 0;
-				$grades = array();
-
-				foreach ($studentrows as $j => $student) {
-					$t = $student->find('td[class=daybook_R]');
-					if ($j == 0) {
-						$periods = count($t);
-						for ($n=0; $n < $periods; $n++) { 
-							$grades[$n] = 0;
-						}
-					}
-
-					foreach ($t as $n => $g) {
-						if ($g->plaintext != '') $grades[$n]++;
-					}
-
-				}
-
-				$module = $entries->find('.moodul');
-				if (count($module) > 0) array_pop($grades);
-
-				$current_subject['grades'] = $grades;
-				
-				$current_subject['student_count'] = $studentCount;
-				$pl = $lessons_html->find('span[id=palnned_size_number]', 0);
-				$current_subject['planned'] = $pl->plaintext;
-			}
-
-
-			if ($i === 2)
-				$current_subject['p1'] = $a->plaintext;
-			if ($i === 3)
-				$current_subject['p2'] = $a->plaintext;
-			if ($i === 4)
-				$current_subject['p3'] = $a->plaintext;
-			if ($i === 5)
-				$current_subject['p4'] = $a->plaintext;
-			if ($i === 6)
-				$current_subject['p5'] = $a->plaintext;
-			if ($i === 7)
-				$current_subject['p6'] = $a->plaintext;
-			if ($i === 8)
-				$current_subject['p7'] = $a->plaintext;
-			if ($i === 9)
-				$current_subject['p8'] = $a->plaintext;
-		}
-	}
-	if (count($current_subject) > 0) {
-		$conn = new mysqli($server, $user, $pass, $database);
-		$conn->set_charset("utf8");
-		$q = "SELECT COUNT(*) AS lc FROM tunnid where subject_id=".$current_subject['id'].";";
-		$rs = $conn->query($q);
-		$itt = $rs->fetch_assoc();
-		$current_subject['lessoncount'] = $itt['lc'];
-		$conn->close();
-
-		array_push($all_subjects, $current_subject);
-	}
-}
-
-
+$currentPeriod = 0;
+$todayYmd = date('Ymd', strtotime('today'));
+$GLOBALS['todayYmd'] = $todayYmd;
 ?>
 
 <html lang="en">
@@ -117,42 +39,125 @@ foreach ($subjects->find('tr') as $tr) {
 		<![endif]-->
 	</head>
 <body>
-
-<div class="container">
+<div class="alert alert-info">
+	<p># Andmete uuendamiseks mine <a href="subjects-update.php" target="_new">/subjects-update.php</a></p>
+	<p># Kolmesed tunnid arvatavasti katki</p>
+</div>
+<div class="">
 	<br>
 	<a href="index.php">&larr; tagasi</a>
 	<br>
 	<div class="table-container">
-		<table class="table table-subjects table-condensed">
+		<table class="table table-subjects table-condensed table-bordered">
 			<thead>
-				<tr>
-					<th>Aine</th>
+				<tr class="center">
 					<th>Grupp</th>
-					<th>p1</th>
-					<th>p2</th>
-					<th>p3</th>
-					<th>p4</th>
-					<th>p5</th>
-					<th>p6</th>
-					<th>p7</th>
-					<th>p8</th>
+					<th>Aine</th>
+					<?php foreach ($perioodid as $i => $periood): ?>
+						<?php $currentPeriod = (($todayYmd > date('Ymd', strtotime($periood['start']))) && ($todayYmd < date('Ymd', strtotime($periood['end']))))? ($i+1) : $currentPeriod; ?>
+						<th colspan="4" class="<?php echo ($currentPeriod == ($i+1))? 'current-period' : '' ?>"><?php echo ($i+1); ?>. periood<br><?php echo substr($periood['start'], 0, -5) ?> - <?php echo substr($periood['end'], 0, -5) ?></th>
+					<?php endforeach ?>
 				</tr>
 			</thead>
 			<tbody>
-				<?php foreach ($all_subjects as $subject): ?>
-				<?php $GLOBALS["grade_period"] = 0; ?>
+				<tr class="subheader">
+					<td colspan="2"></td>
+					<td>A</td>
+					<td>T</td>
+					<td>P</td>
+					<td class="grades">H</td>
+					<td>A</td>
+					<td>T</td>
+					<td>P</td>
+					<td class="grades">H</td>
+					<td>A</td>
+					<td>T</td>
+					<td>P</td>
+					<td class="grades">H</td>
+					<td>A</td>
+					<td>T</td>
+					<td>P</td>
+					<td class="grades">H</td>
+					<td>A</td>
+					<td>T</td>
+					<td>P</td>
+					<td class="grades">H</td>
+					<td>A</td>
+					<td>T</td>
+					<td>P</td>
+					<td class="grades">H</td>
+					<td>A</td>
+					<td>T</td>
+					<td>P</td>
+					<td class="grades">H</td>
+					<td>A</td>
+					<td>T</td>
+					<td>P</td>
+					<td class="grades">H</td>
+
+				</tr>
+				<?php foreach ($daybooks as $db): ?>
+				<?php
+					$pgrades_temp = $conn->query("SELECT gradecount FROM grades WHERE daybook_id=".$db['id']." ORDER BY period ASC;");
+					$pgrades = $pgrades_temp->fetch_all();
+					// print_r($pgrades);
+
+					// BY SUBJECT_ID
+					$plessonsQuery = "select
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[0]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[0]['end']))."' AND subject_id = ".$db['id']."
+						) as p1, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[1]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[1]['end']))."' AND subject_id = ".$db['id']."
+						) as p2, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[2]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[2]['end']))."' AND subject_id = ".$db['id']."
+						) as p3, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[3]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[3]['end']))."' AND subject_id = ".$db['id']."
+						) as p4, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[4]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[4]['end']))."' AND subject_id = ".$db['id']."
+						) as p5, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[5]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[5]['end']))."' AND subject_id = ".$db['id']."
+						) as p6, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[6]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[6]['end']))."' AND subject_id = ".$db['id']."
+						) as p7, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[7]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[7]['end']))."' AND subject_id = ".$db['id']."
+						) as p8; 
+					";
+
+					// BY SUBJECT AND THEORY
+/*					$plessonsQuery = "select
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[0]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[0]['end']))."' AND theory = ".$db['theory']." AND subject='".$db['name']."'
+						) as p1, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[1]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[1]['end']))."' AND theory = ".$db['theory']." AND subject='".$db['name']."'
+						) as p2, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[2]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[2]['end']))."' AND theory = ".$db['theory']." AND subject='".$db['name']."'
+						) as p3, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[3]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[3]['end']))."' AND theory = ".$db['theory']." AND subject='".$db['name']."'
+						) as p4, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[4]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[4]['end']))."' AND theory = ".$db['theory']." AND subject='".$db['name']."'
+						) as p5, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[5]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[5]['end']))."' AND theory = ".$db['theory']." AND subject='".$db['name']."'
+						) as p6, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[6]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[6]['end']))."' AND theory = ".$db['theory']." AND subject='".$db['name']."'
+						) as p7, 
+						(select count(*) from tunnid where lessondate > '".date('Y-m-d',strtotime($perioodid[7]['start']))."' AND lessondate < '".date('Y-m-d', strtotime($perioodid[7]['end']))."' AND theory = ".$db['theory']." AND subject='".$db['name']."'
+						) as p8; 
+					";*/
+
+					$plessons_temp = $conn->query($plessonsQuery);
+					$plessons = $plessons_temp->fetch_assoc();
+				?>
 				<tr>
-					<td><a href="<?php echo $subject['href'] ?>" target="_new" title="<?php echo $subject['fullname'] ?>"><?php echo $subject['name'] ?></a></td>
-					<td><?php echo $subject['group'] ?></td>
+
+					<td><?php echo $db['groupname'] ?></td>
+					<td title="<?php echo $db['fullname'] ?>"><?php echo $db['name'] ?></td>
+
+					<?php 
+					for ($i=0; $i < 8; $i++) { 
+						 getPeriod($db, $plessons, $i, $pgrades, $perioodid);
+					}
+					?>
+					<?php // $periodCounter++; getPeriod($db, $plessons, $periodCounter, $pgrades); ?>
+					<?php // $periodCounter++; getPeriod($db, $plessons, $periodCounter, $pgrades); ?>
 					
-					<td><?php if (isset($subject['p1'])) { lessons2badge($subject['p1']); grades2badge($subject['grades'], $subject['student_count']); } ?></td>
-					<td><?php if (isset($subject['p2'])) { lessons2badge($subject['p2']); grades2badge($subject['grades'], $subject['student_count']); } ?></td>
-					<td><?php if (isset($subject['p3'])) { lessons2badge($subject['p3']); grades2badge($subject['grades'], $subject['student_count']); } ?></td>
-					<td><?php if (isset($subject['p4'])) { lessons2badge($subject['p4']); grades2badge($subject['grades'], $subject['student_count']); } ?></td>
-					<td><?php if (isset($subject['p5'])) { lessons2badge($subject['p5']); grades2badge($subject['grades'], $subject['student_count']); } ?></td>
-					<td><?php if (isset($subject['p6'])) { lessons2badge($subject['p6']); grades2badge($subject['grades'], $subject['student_count']); } ?></td>
-					<td><?php if (isset($subject['p7'])) { lessons2badge($subject['p7']); grades2badge($subject['grades'], $subject['student_count']); } ?></td>
-					<td><?php if (isset($subject['p8'])) { lessons2badge($subject['p8']); grades2badge($subject['grades'], $subject['student_count']); } ?></td>
 
 				</tr>
 				<?php endforeach ?>
@@ -170,40 +175,37 @@ foreach ($subjects->find('tr') as $tr) {
 
 
 <?php 
-function getUrl($url, $method = '', $vars = '') {
-	$ch = curl_init();
-	if ($method == 'post') {
-	  curl_setopt($ch, CURLOPT_POST, 1);
-	  curl_setopt($ch, CURLOPT_POSTFIELDS, $vars);
- 	}
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-	curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookies.txt');
-	curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookies.txt');
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	$buffer = curl_exec($ch);
-	curl_close($ch);
-	return $buffer;
-}
-function lessons2badge($lesson){
-	if (count($lessons = explode('/', $lesson)) > 1) {
-		$color = ($lessons[0] >= $lessons[1])? 'label-success' : 'label-danger';
-	} else 
-		$color = 'label-danger';
-	echo '<span class="label '.$color.'" title="Tunnid">'.$lesson.'</span>';
-}
-function grades2badge($grades, $count){
-	if (($GLOBALS["grade_period"] < count($grades)) && (count($grades) > 0)) {
-		$current = $grades[$GLOBALS["grade_period"]];
-		if ($current < $count) $color = 'label-danger';
-		else $color = 'label-success';
-		echo '<span class="label '.$color.'" title="Hinded" >'.$current.'/'.$count.'</span>';
-		$GLOBALS["grade_period"]++;
-	} else {
-		if (0 < $count) $color = 'label-danger';
-		else $color = 'label-success';
-		echo '<span class="label '.$color.'" title="Hinded" >0/'.$count.'</span>';
+function getPeriod($db, $plessons, $periodCounter, $pgrades, $perioodid){ ?>
+	<!-- X. PERIOD -->
+	<?php 
+	$enteredClass = '';
+	if ($db['p'.($periodCounter+1).'c'] > 0) {
+		if ($db['p'.($periodCounter+1).'c'] > ($plessons['p'.($periodCounter+1)] * 2)) $enteredClass = 'red';
+		if ($db['p'.($periodCounter+1).'c'] == ($plessons['p'.($periodCounter+1)] * 2)) $enteredClass = 'green';
 	}
-}
+
+	$inTTClass = '';
+	if ($plessons['p'.($periodCounter+1)] > 0) {
+		if (($plessons['p'.($periodCounter+1)] * 2) == $db['p'.($periodCounter+1).'p']) $inTTClass = 'green';
+		if (($plessons['p'.($periodCounter+1)] * 2) < $db['p'.($periodCounter+1).'p'] && ($GLOBALS['todayYmd'] > date('Ymd', strtotime($perioodid[$periodCounter]['end'])))) $inTTClass = 'yellow';
+
+	}
+
+	$gradesClass = '';
+	if ($db['p'.($periodCounter+1).'p'] > 0 && isset($pgrades[$periodCounter][0]) && $pgrades[$periodCounter][0] > 0) {
+		if ($pgrades[$periodCounter][0] == $db['students']) $gradesClass = 'green';
+		if ($pgrades[$periodCounter][0] < $db['students'] && ($GLOBALS['todayYmd'] > date('Ymd', strtotime($perioodid[$periodCounter]['end'])))) $gradesClass = 'red';
+	}
+
+	?>
+	<td class="<?php echo $enteredClass ?>"><?php echo ($db['p'.($periodCounter+1).'c'] > 0)? $db['p'.($periodCounter+1).'c'] : '' ?></td>
+	<td class="<?php echo $inTTClass ?>"><?php echo ($plessons['p'.($periodCounter+1)] > 0)? ($plessons['p'.($periodCounter+1)]*2) : '' ?></td>
+	<td><?php echo ($db['p'.($periodCounter+1).'p'] > 0)? $db['p'.($periodCounter+1).'p'] : '' ?></td>
+	<?php 
+	if ($db['p'.($periodCounter+1).'p'] > 0)
+		$cgp = (isset($pgrades[$periodCounter][0]) && $pgrades[$periodCounter][0] > 0)? $pgrades[$periodCounter][0].'/'.$db['students'] : '';
+	else $cgp = '';
+	?>
+	<td class="<?php echo $gradesClass ?>"><?php echo $cgp ?></td>
+<?php }
 ?>

@@ -79,3 +79,28 @@ input[type="checkbox"] {
 .table>tbody>tr.lessonrow.processed:hover>td, .table>tbody>tr.lessonrow.today.processed:hover>td, .table>tbody>tr.current-lesson.processed:hover>td {
 	background-color: #FFF9EF;
 }
+
+td.grades, th.grades {
+	background-color: #ddd;
+}
+tr.subheader td {
+	text-align: center;
+}
+tr.center td, tr.center th {
+	text-align: center;
+}
+.table>thead>tr>th.current-period {
+	background-color: #77cbf4;
+}
+.table-subjects>tbody>tr>td:nth-child(n+3) {
+	text-align: center;
+}
+.table-subjects>tbody>tr>td.red {
+	background-color: #FF8989;
+}
+.table-subjects>tbody>tr>td.green {
+	background-color: #A9FFC6;
+}
+.table-subjects>tbody>tr>td.yellow {
+	background-color: #fffa72;
+}
