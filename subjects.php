@@ -6,7 +6,7 @@ include 'config.php';
 $conn = new mysqli($server, $user, $pass, $database);
 $conn->set_charset("utf8");
 $dbs = $conn->query("SELECT * FROM daybooks ORDER BY groupname ASC");
-$daybooks = $dbs->fetch_all(MYSQLI_ASSOC);
+// $daybooks = $dbs->fetch_assoc();
 
 $perioodid = array(
 array('start'=> '02.09.2013', 'end'=> '06.10.2013'),
@@ -96,11 +96,15 @@ $GLOBALS['todayYmd'] = $todayYmd;
 					<td class="grades">H</td>
 
 				</tr>
-				<?php foreach ($daybooks as $db): ?>
+				<?php //foreach ($daybooks as $db): ?>
+				<?php while($db = $dbs->fetch_assoc()){ ?>
 				<?php
 					$pgrades_temp = $conn->query("SELECT gradecount FROM grades WHERE daybook_id=".$db['id']." ORDER BY period ASC;");
-					$pgrades = $pgrades_temp->fetch_all();
-					// print_r($pgrades);
+					$pgrades = array();
+
+					while($pg = $pgrades_temp->fetch_assoc()){
+						array_push($pgrades, $pg);
+					}
 
 					// BY SUBJECT_ID
 					$plessonsQuery = "select
@@ -160,7 +164,7 @@ $GLOBALS['todayYmd'] = $todayYmd;
 					
 
 				</tr>
-				<?php endforeach ?>
+				<?php } //endforeach ?>
 			</tbody>
 		</table>
 	</div>
@@ -192,9 +196,9 @@ function getPeriod($db, $plessons, $periodCounter, $pgrades, $perioodid){ ?>
 	}
 
 	$gradesClass = '';
-	if ($db['p'.($periodCounter+1).'p'] > 0 && isset($pgrades[$periodCounter][0]) && $pgrades[$periodCounter][0] > 0) {
-		if ($pgrades[$periodCounter][0] == $db['students']) $gradesClass = 'green';
-		if ($pgrades[$periodCounter][0] < $db['students'] && ($GLOBALS['todayYmd'] > date('Ymd', strtotime($perioodid[$periodCounter]['end'])))) $gradesClass = 'red';
+	if ($db['p'.($periodCounter+1).'p'] > 0 && isset($pgrades[$periodCounter]['gradecount']) && $pgrades[$periodCounter]['gradecount'] > 0) {
+		if ($pgrades[$periodCounter]['gradecount'] == $db['students']) $gradesClass = 'green';
+		if ($pgrades[$periodCounter]['gradecount'] < $db['students'] && ($GLOBALS['todayYmd'] > date('Ymd', strtotime($perioodid[$periodCounter]['end'])))) $gradesClass = 'red';
 	}
 
 	?>
@@ -203,7 +207,7 @@ function getPeriod($db, $plessons, $periodCounter, $pgrades, $perioodid){ ?>
 	<td><?php echo ($db['p'.($periodCounter+1).'p'] > 0)? $db['p'.($periodCounter+1).'p'] : '' ?></td>
 	<?php 
 	if ($db['p'.($periodCounter+1).'p'] > 0)
-		$cgp = (isset($pgrades[$periodCounter][0]) && $pgrades[$periodCounter][0] > 0)? $pgrades[$periodCounter][0].'/'.$db['students'] : '';
+		$cgp = (isset($pgrades[$periodCounter]['gradecount']) && $pgrades[$periodCounter]['gradecount'] > 0)? $pgrades[$periodCounter]['gradecount'].'/'.$db['students'] : '';
 	else $cgp = '';
 	?>
 	<td class="<?php echo $gradesClass ?>"><?php echo $cgp ?></td>
