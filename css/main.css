@@ -44,7 +44,7 @@ tr.daterow>td {
 	background-color: #F9F7B1;
 }
 .table>tbody>tr.lessonrow:hover>td, .table-subjects>tbody>tr:hover>td {
-	background-color: #FFF9EF;
+	text-decoration: underline;
 }
 .table {
 	margin-bottom: 0;
@@ -77,7 +77,7 @@ input[type="checkbox"] {
 	background-color: #C5EEC4;
 }
 .table>tbody>tr.lessonrow.processed:hover>td, .table>tbody>tr.lessonrow.today.processed:hover>td, .table>tbody>tr.current-lesson.processed:hover>td {
-	background-color: #FFF9EF;
+	text-decoration: underline;
 }
 
 td.grades, th.grades {
