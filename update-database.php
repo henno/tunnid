@@ -11,7 +11,8 @@ $conn->set_charset("utf8");
 $timetable = array();
 
 $firstDay = (date('m', strtotime('today')) < 9)? date('Ymd', strtotime('1st September last year')) : date('Ymd', strtotime('1st September this year'));
-$lastDay = date('Ymd', strtotime('31.08.2014'));
+$year= date('m')>7 ? date('Y')+1 : date('Y');
+$lastDay = date('Ymd', strtotime('31.08.'.$year));
 
 $mondays = getDateForSpecificDayBetweenDates($firstDay, $lastDay, 1);
 foreach ($mondays as $monday) {
@@ -46,7 +47,7 @@ foreach ($timetable as $week) {
 $tobase = substr($tobase, 0, -1);
 $tobase .= "ON DUPLICATE KEY UPDATE theory=theory;";
 
- 
+
 // BEFORE INSERT
 $before = "DELETE FROM tunnid WHERE lessondate > CURDATE();";
 $conn->query($before);

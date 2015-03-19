@@ -45,18 +45,29 @@ if (date( "w", strtotime('now')) == 0) {
 	</head>
 <?php 
 $today = date('d.m.Y', strtotime('today'));
-$yearStart = (date('m', strtotime('today')) < 9)? date('d.m.Y', strtotime('1st September last year')) : date('d.m.Y', strtotime('1st September this year'));
+$septemberFirst = (date('m', strtotime('today')) < 9)? date('Y-m-d', strtotime('1st September last year')) : date('Y-m-d', strtotime('1st September this year'));
+$septemberFirstMonday=date('Y-m-d', strtotime('First Monday of',strtotime($septemberFirst)));
+$Date=new DateTime($septemberFirstMonday);
+$Date->modify('-1 day');
+$perioodid = array();
+for($i=0; $i<8; $i++){
+	$startDate =$Date->modify('+1 day')->format('d.m.Y');
 
-$perioodid = array(
-array('start'=> '02.09.2013', 'end'=> '06.10.2013'),
-array('start'=> '07.10.2013', 'end'=> '10.11.2013'),
-array('start'=> '11.11.2013', 'end'=> '15.12.2013'),
-array('start'=> '16.12.2013', 'end'=> '02.02.2014'),
-array('start'=> '03.02.2014', 'end'=> '09.03.2014'),
-array('start'=> '10.03.2014', 'end'=> '13.04.2014'),
-array('start'=> '14.04.2014', 'end'=> '18.05.2014'),
-array('start'=> '19.05.2014', 'end'=> '31.08.2014'),
-);
+	// Jõuluvaheaeg
+	if ($i==3){
+		$Date->modify('+2 week');
+	}
+
+	$endDate =$Date->modify('+5 week-1 day')->format('d.m.Y');
+
+	// Viimane periood lõppeb alati 31.08
+	if ($i==7){
+		$year= date('m')>7 ? date('Y')+1 : date('Y');
+		$endDate = date('d.m.Y', strtotime('31.08.'.$year));
+	}
+
+	$perioodid[]= array('start'=> $startDate, 'end'=> $endDate);
+}
 $currentPeriod = 0;
 ?>
 	<body class="<?php echo ($sinceUpdate >= 24)? 'should-update' : ''; ?>">
@@ -115,7 +126,7 @@ $currentPeriod = 0;
 					<li><a href="#" class="period" data-start="<?php echo $thisweek; ?>" data-end="<?php echo $nextweek; ?>" >Jooksev ja järgmine nädal</a></li>
 					<li><a href="#" class="period" data-start="<?php echo $perioodid[$currentPeriod]['start']; ?>" data-end="<?php echo $perioodid[$currentPeriod]['end']; ?>" >Jooksev periood</a></li>
 					<li><a href="#" class="period" data-start="<?php echo $perioodid[$currentPeriod-1]['start']; ?>" data-end="<?php echo $perioodid[$currentPeriod]['end']; ?>" >Eelmine ja jooksev periood</a></li>
-					<li><a href="#" class="period" data-start="<?php echo $yearStart; ?>" data-end="<?php echo $perioodid[7]['end']; ?>" >Jooksev õppeaasta</a></li>
+					<li><a href="#" class="period" data-start="<?php echo $septemberFirst; ?>" data-end="<?php echo $perioodid[7]['end']; ?>" >Jooksev õppeaasta</a></li>
 					<li><a href="subjects.php">Ained &rarr;</a></li>
 				</ul>
 				</div>
