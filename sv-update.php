@@ -25,11 +25,11 @@ function getUrl($url, $method = '', $vars = '') {
 }
 
 // LOGIN
-$loginUrl = 'https://siseveeb.ee/tkhk/ajax_send';
+$loginUrl = 'https://siseveeb.khk.ee/ajax_send';
 
 getUrl($loginUrl, 'post', $loginFields);
 
-$table_subjects = getUrl('https://siseveeb.ee/tkhk/kutseope/oppetoo/paevik/ajax_cmd?cmd=k_daybook_opetaja_list_type', 'post', array('list' => 2013, 'filter_table' => true));
+$table_subjects = getUrl('https://siseveeb.khk.ee/kutseope/oppetoo/paevik/ajax_cmd?cmd=k_daybook_opetaja_list_type', 'post', array('list' => 2013, 'filter_table' => true));
 
 $all_data = array();
 $all_subjects = array();

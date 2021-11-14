@@ -83,7 +83,7 @@ while($row = $data->fetch_assoc()){
 	'<td class="count">'.$lessonCount.'</td>';
 
 	if ($row['subject_id']) {
-		$diarylink = 'https://siseveeb.ee/tkhk/kutseope/oppetoo/paevik/taitmine?paevik='.$row['subject_id'];
+		$diarylink = 'https://siseveeb.khk.ee/kutseope/oppetoo/paevik/taitmine?paevik='.$row['subject_id'];
 		if ($row['lesson_id']) 
 			$diarylink .= '&tund='.$row['lesson_id'];
 

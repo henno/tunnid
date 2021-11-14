@@ -11,7 +11,7 @@ if (!isset($_GET['date_from'])) {
 	$firstDay = date('Ymd', strtotime($thisweek));
 	$lastDay = date('Ymd', strtotime($thisweek.'+1 week'));
 
-	$data = file_get_contents('https://siseveeb.ee/tkhk/veebilehe_andmed/tunniplaan?opetaja=28243&nadal='.$thisweek);
+	$data = file_get_contents('https://siseveeb.khk.ee/veebilehe_andmed/tunniplaan?opetaja=28243&nadal='.$thisweek);
 	$data = json_decode($data, true);
 	array_push($timetable, $data);
 } else {
@@ -20,7 +20,7 @@ if (!isset($_GET['date_from'])) {
 
 	$mondays = getDateForSpecificDayBetweenDates($_GET['date_from'], $_GET['date_to'], 1);
 	foreach ($mondays as $monday) {
-		$data = file_get_contents('https://siseveeb.ee/tkhk/veebilehe_andmed/tunniplaan?opetaja=28243&nadal='.$monday);
+		$data = file_get_contents('https://siseveeb.khk.ee/veebilehe_andmed/tunniplaan?opetaja=28243&nadal='.$monday);
 		$data = json_decode($data, true);
 		array_push($timetable, $data);
 	}
