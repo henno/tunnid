@@ -61,7 +61,7 @@ while($row = $data->fetch_assoc()){
     // DATEROW
     if ($currentDay > $lastDay) {
     	$lastDay = $currentDay;
-    	$table .= '<tr class="info daterow '.$rowcolor.'" ><td><input type="checkbox" class="datecheck" /></td><td colspan="3">'.$row['dayname'].' '.date('d.m.Y', strtotime($lastDay)).'</td><td>'.date("H:i", strtotime($row["starttime"])).'</td><td class="date-end"></td><td></td></tr>';
+    	$table .= '<tr class="info daterow '.$rowcolor.'" ><td><input type="checkbox" class="datecheck" /></td><td colspan="2">'.$row['dayname'].' '.date('d.m.Y', strtotime($lastDay)).'</td><td class="countOfLessons"></td><td>'.date("H:i", strtotime($row["starttime"])).'</td><td class="date-end"></td><td></td></tr>';
     }
 
     $cD = date('Y-m-d', strtotime($row['lessondate']));
