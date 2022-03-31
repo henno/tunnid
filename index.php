@@ -11,7 +11,6 @@ $result = $conn->query("SELECT content FROM pagedata WHERE name = 'last_update';
 $row = $result->fetch_assoc();
 
 $lastUpdate = $row['content'];
-$updated = (date("H:i m.d.Y") - strtotime($lastUpdate));
 
 $start_date = new DateTime(date('Y-m-d H:i', strtotime($lastUpdate)));
 $since_start = $start_date->diff(new DateTime(date('Y-m-d H:i')));
