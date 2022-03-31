@@ -1,5 +1,5 @@
-config.php
-test.php
-notes.js
-config.php
-.idea/*
+/config.php
+/test.php
+/notes.js
+/.idea/*
+/cookies.txt
