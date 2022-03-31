@@ -17,7 +17,7 @@ $lastDay = date('Ymd', strtotime('31.08.'.$year));
 $mondays = getDateForSpecificDayBetweenDates($firstDay, $lastDay, 1);
 foreach ($mondays as $monday) {
 
-    $data = file_get_contents('https://siseveeb.khk.ee/veebilehe_andmed/tunniplaan?opetaja=28243&nadal='.$monday);
+    $data = file_get_contents('https://siseveeb.voco.ee/veebilehe_andmed/tunniplaan?opetaja=28243&nadal='.$monday);
 	$data = json_decode($data, true);
 	array_push($timetable, $data);
 }
